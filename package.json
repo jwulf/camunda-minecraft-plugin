@@ -1,0 +1,31 @@
+{
+  "name": "sma-server",
+  "version": "1.0.0",
+  "keywords": [
+    "scriptcraft",
+    "scriptcraft-sma",
+    "server"
+  ],
+  "author": "",
+  "license": "ISC",
+  "smaServerConfig": {
+    "dockerTag": "1.15",
+    "port": "25565",
+    "serverName": "sma-server",
+    "worlds": [
+      {
+        "downloadUrl": "",
+        "name": "world-0",
+        "version": "1.0.0"
+      }
+    ],
+    "bind": [{
+      "src": "./target/CamundaPlugin-1.0.0-SNAPSHOT.jar",
+      "dst": "plugins/CamundaPlugin.jar"
+    }],
+    "javaPlugins": []
+  },
+  "dependencies": {
+    "@magikcraft/op-all": "^1.0.0"
+  }
+}
