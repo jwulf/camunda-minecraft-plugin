@@ -2,9 +2,9 @@
 
 The Camunda Engine embedded in a Minecraft plugin for Bukkit-compatible Minecraft servers.
 
-The plugin has a single delegate method for task execution. The executor takes a `delegate` field injection from a service task.
+The plugin has a single delegate method for task execution. The executor uses a field injection named `delegate` from a service task.
 
-This should be the name of a JavaScript function that will be invoked in a Nashorn Engine.
+It uses the value of this field to look up a JavaScript handler in a map.
 
 Register the handlers using the `registerHandler(name, code)` method. See the example below.
 
