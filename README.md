@@ -1,5 +1,9 @@
 # Camunda Minecraft Plugin
 
+![](img/CamundaCraft.jpg)
+
+_Orchestrate Minecraft with BPMN and JavaScript!_
+
 The Camunda Engine embedded in a Minecraft plugin for Bukkit-compatible Minecraft servers.
 
 The plugin has a single delegate method for task execution. The executor uses a field injection named `delegate` from a service task.
