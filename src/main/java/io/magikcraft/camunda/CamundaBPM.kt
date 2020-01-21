@@ -8,9 +8,15 @@ import org.camunda.bpm.engine.RuntimeService
 import org.camunda.bpm.engine.runtime.ProcessInstance
 import org.camunda.bpm.model.bpmn.Bpmn
 import java.io.ByteArrayInputStream
+import javax.script.ScriptContext
+import javax.script.ScriptEngine
+import javax.script.ScriptEngineManager
 
 @Suppress("Unused")
 class CamundaBPM : JavaPlugin() {
+    companion object {
+        val engine: ScriptEngine? = ScriptEngineManager().getEngineByName("nashorn")
+    }
 
     @Suppress("Unused")
     val processEngine: ProcessEngine = ProcessEngineConfiguration.createStandaloneInMemProcessEngineConfiguration()
@@ -23,7 +29,15 @@ class CamundaBPM : JavaPlugin() {
     val runtimeService: RuntimeService = processEngine.runtimeService
 
     override fun onEnable() {
-        logger.info("onEnable is called!")
+        if (engine == null) {
+            throw Error("No Nashorn Engine found. The Camunda plugin cannot load.")
+        }
+
+        val context = engine.context
+        context.setAttribute("__plugin", this, ScriptContext.ENGINE_SCOPE)
+
+        engine.eval("__camundaHandlers = {}; console = { log: function(msg) { __plugin.logger.info(msg) } }")
+        logger.info("Camunda plugin ready for action")
     }
 
     override fun onDisable() {
@@ -54,5 +68,10 @@ class CamundaBPM : JavaPlugin() {
     @Suppress("Unused")
     fun cancelInstance(processId: String) {
         runtimeService.signalEventReceived("CANCEL", processId)
+    }
+
+    @Suppress("Unused")
+    fun registerHandler(name: String, code: String): Boolean {
+        return engine?.eval("__camundaHandlers.$name = $code; true") as Boolean
     }
 }
