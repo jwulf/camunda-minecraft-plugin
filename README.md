@@ -1,6 +1,6 @@
 # Camunda Minecraft Plugin
 
-The Camunda Engine embedded in a Minecraft plugin for a Bukkit-compatible Minecraft server.
+The Camunda Engine embedded in a Minecraft plugin for Bukkit-compatible Minecraft servers.
 
 The plugin has a single delegate method for task execution. The executor takes a `delegate` field injection from a service task.
 
@@ -43,7 +43,9 @@ c.runtimeService.createProcessInstanceByKey("my-project-process").execute()
 You will see the handler execute:
 
 ```
-
+[02:14:06 INFO]: [CamundaPlugin] Yay!!! The job handler was called from process instance 24
 ```
+
+_Epico!_
 
 To shut down the server, type: `smac stop`.
