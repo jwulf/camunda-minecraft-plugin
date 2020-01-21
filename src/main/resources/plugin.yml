@@ -1,3 +1,10 @@
 name: CamundaPlugin
 version: 1.0.0
 main: io.magikcraft.camunda.CamundaBPM
+
+commands:
+  bpmn:
+    description: Manage CamundaCraft BPMN.
+    usage: "Usage: /<command> [reload | start]"
+#    permission: scriptcraft.evaluate
+ #   permission-message: You don't have <permission> permission.

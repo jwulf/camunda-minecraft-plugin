@@ -22,7 +22,11 @@
     "bind": [{
       "src": "./target/CamundaPlugin-1.0.0-SNAPSHOT.jar",
       "dst": "plugins/CamundaPlugin.jar"
-    }],
+    },
+      {
+        "src": "./test-data",
+        "dst": "plugins/CamundaPlugin"
+      }],
     "javaPlugins": []
   },
   "dependencies": {

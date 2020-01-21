@@ -1,22 +1,25 @@
 package io.magikcraft.camunda
 
+import org.bukkit.command.Command
+import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
-import org.camunda.bpm.engine.ProcessEngine
-import org.camunda.bpm.engine.ProcessEngineConfiguration
-import org.camunda.bpm.engine.RepositoryService
-import org.camunda.bpm.engine.RuntimeService
+import org.camunda.bpm.engine.*
 import org.camunda.bpm.engine.runtime.ProcessInstance
 import org.camunda.bpm.model.bpmn.Bpmn
 import java.io.ByteArrayInputStream
+import java.io.File
 import javax.script.ScriptContext
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 
+
 @Suppress("Unused")
-class CamundaBPM : JavaPlugin() {
+class CamundaBPM() : JavaPlugin() {
     companion object {
-        val engine: ScriptEngine? = ScriptEngineManager().getEngineByName("nashorn")
+        var engine: ScriptEngine? = ScriptEngineManager().getEngineByName("nashorn")
     }
+
+    private val handlerMap = "__camundaHandlers"
 
     @Suppress("Unused")
     val processEngine: ProcessEngine = ProcessEngineConfiguration.createStandaloneInMemProcessEngineConfiguration()
@@ -32,20 +35,81 @@ class CamundaBPM : JavaPlugin() {
         if (engine == null) {
             throw Error("No Nashorn Engine found. The Camunda plugin cannot load.")
         }
-
-        val context = engine.context
-        context.setAttribute("__plugin", this, ScriptContext.ENGINE_SCOPE)
-
-        engine.eval("__camundaHandlers = {}; console = { log: function(msg) { __plugin.logger.info(msg) } }")
+        initialiseExecutionEngine(engine!!)
+        loadBpmnAndHandlers()
         logger.info("Camunda plugin ready for action")
+    }
+
+    /**
+     * Call setExecutionEngine and pass in a custom execution engine, for example, one
+     * with the Scriptcraft / Magikcraft API loaded in it.
+     */
+    @Suppress("Unused")
+    fun setExecutionEngine(executionEngine: ScriptEngine) {
+        engine = executionEngine
+        initialiseExecutionEngine(engine!!)
+    }
+
+    private fun initialiseExecutionEngine(executionEngine: ScriptEngine) {
+        executionEngine.eval("$handlerMap = {};")
     }
 
     override fun onDisable() {
         logger.info("onDisable is called!")
     }
 
+    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
+        if (command.name == "bpmn") {
+            val subCommand: String
+            if (args.isNotEmpty()) {
+                subCommand = args[0];
+                if (subCommand == "reload") {
+                    loadBpmnAndHandlers()
+                    return true
+                }
+                if (subCommand == "start") {
+                    if (args.size < 2) {
+                        return false
+                    }
+                    val processKey = args[1]
+                    startInstance(processKey, mutableMapOf())
+                    return true
+                }
+            }
+            return false
+        }
+        return true
+    }
+
+    private fun loadBpmnAndHandlers() {
+        val cfgFolder = this.dataFolder
+        val files = cfgFolder.listFiles()
+        val jsFiles = files?.filter { it.extension == "js" }
+        val bpmnFiles = files?.filter { it.extension == "bpmn" }
+        jsFiles?.forEach { loadJSHandlersFromModuleFile(it)  }
+        bpmnFiles?.forEach { deployBpmn(it.name, it.readText()) }
+    }
+
+    private fun loadJSHandlersFromModuleFile(moduleFile: File) {
+        logger.info("Loading " + moduleFile.name)
+        val module = moduleFile.readText()
+        try {
+            engine?.eval("""
+            (function(module) {
+                $module
+                for (x in module.exports) {
+                    $handlerMap[x] = module.exports[x];
+                };
+            })({}) 
+            """.trimIndent())
+        } catch (ex: ScriptEvaluationException) {
+            logger.info(ex.toString())
+        }
+    }
+
     @Suppress("Unused")
     fun deployBpmn(name: String, bpmnModel: String) {
+        logger.info("Loading $name")
         val byteArray = bpmnModel.toByteArray()
         val stream = ByteArrayInputStream(byteArray)
         val model = Bpmn.readModelFromStream(stream)
@@ -72,6 +136,11 @@ class CamundaBPM : JavaPlugin() {
 
     @Suppress("Unused")
     fun registerHandler(name: String, code: String): Boolean {
-        return engine?.eval("__camundaHandlers.$name = $code; true") as Boolean
+        return engine?.eval("$handlerMap.$name = $code; true") as Boolean
+    }
+
+    init {
+        val context = engine!!.context
+        context.setAttribute("__plugin", this, ScriptContext.ENGINE_SCOPE)
     }
 }

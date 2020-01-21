@@ -1,4 +1,4 @@
-# Camunda Minecraft Plugin
+# CamundaCraft - The Minecraft BPMN Plugin
 
 ![](img/CamundaCraft.jpg)
 
@@ -9,6 +9,8 @@ The Camunda Engine embedded in a Minecraft plugin for Bukkit-compatible Minecraf
 The plugin has a single delegate method for task execution. The executor uses a field injection named `delegate` from a service task.
 
 It uses the value of this field to look up a JavaScript handler in a map.
+
+Any .bpmn and .js files in `plugins/CamundaPlugin` will be loaded. Take a look at the files in [test-data](test-data) for the format of the .js file.
 
 Register the handlers using the `registerHandler(name, code)` method. See the example below.
 
@@ -37,7 +39,7 @@ const xml = `<?xml version="1.0" encoding="UTF-8"?><bpmn:definitions xmlns:bpmn=
 
 const c = server.getPluginManager().getPlugin("CamundaPlugin")
 
-c.registerHandler("someFunction", "function(execution) { var process = execution.getProcessInstanceId(); console.log('Yay!!! The job handler was called from process instance ' + process )}")
+c.registerHandler("someFunction", "function(execution) { var process = execution.getProcessInstanceId(); __plugin.logger.info('Yay!!! The job handler was called from process instance ' + process )}")
 
 c.deployBpmn("model.bpmn", xml);
 
