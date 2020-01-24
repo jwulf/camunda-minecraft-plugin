@@ -6,5 +6,5 @@ commands:
   bpmn:
     description: Manage CamundaCraft BPMN.
     usage: "Usage: /<command> [reload | start]"
-#    permission: scriptcraft.evaluate
+#    permission: scriptcraft.evaluates
  #   permission-message: You don't have <permission> permission.

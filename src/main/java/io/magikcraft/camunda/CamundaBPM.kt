@@ -8,6 +8,7 @@ import org.camunda.bpm.engine.runtime.ProcessInstance
 import org.camunda.bpm.model.bpmn.Bpmn
 import java.io.ByteArrayInputStream
 import java.io.File
+import java.lang.Exception
 import javax.script.ScriptContext
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
@@ -32,6 +33,9 @@ class CamundaBPM() : JavaPlugin() {
     val runtimeService: RuntimeService = processEngine.runtimeService
 
     override fun onEnable() {
+        logger.info("Languages:")
+        logger.info(ScriptEngineManager().javaClass.`package`.implementationVersion)
+        ScriptEngineManager().engineFactories.forEach { logger.info(it.languageName) }
         if (engine == null) {
             throw Error("No Nashorn Engine found. The Camunda plugin cannot load.")
         }
@@ -113,10 +117,14 @@ class CamundaBPM() : JavaPlugin() {
         val byteArray = bpmnModel.toByteArray()
         val stream = ByteArrayInputStream(byteArray)
         val model = Bpmn.readModelFromStream(stream)
-        val res = repositoryService.createDeployment()
-            .addModelInstance(name, model)
-            .deploy()
-        logger.info("Deployed " + res.id)
+        try {
+            val res = repositoryService.createDeployment()
+                    .addModelInstance(name, model)
+                    .deploy()
+            logger.info("Deployed " + res.id)
+        } catch (e: Exception) {
+            logger.severe(e.toString())
+        }
     }
 
     @Suppress("Unused")
@@ -131,7 +139,7 @@ class CamundaBPM() : JavaPlugin() {
 
     @Suppress("Unused")
     fun cancelInstance(processId: String) {
-        runtimeService.signalEventReceived("CANCEL", processId)
+        runtimeService.signalEventReceived("WORKFLOW_CANCEL", processId)
     }
 
     @Suppress("Unused")

@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "smaServerConfig": {
-    "dockerTag": "1.15",
+    "dockerTag": "1.15.2",
     "port": "25565",
     "serverName": "sma-server",
     "worlds": [
@@ -19,13 +19,19 @@
         "version": "1.0.0"
       }
     ],
-    "bind": [{
-      "src": "./target/CamundaPlugin-1.0.0-SNAPSHOT.jar",
-      "dst": "plugins/CamundaPlugin.jar"
-    },
+    "bind": [
+      {
+        "src": "./target/CamundaPlugin-1.0.0-SNAPSHOT.jar",
+        "dst": "plugins/CamundaPlugin-1.0.0-SNAPSHOT.jar"
+
+      },
       {
         "src": "./test-data",
         "dst": "plugins/CamundaPlugin"
+      },
+      {
+        "src": "../../workspace/SMA/scriptcraft-multi-engine/target/Scriptcraft-ME-3.1.0.jar",
+        "dst": "plugins/Scriptcraft-ME-3.1.0.jar"
       }],
     "javaPlugins": []
   },
