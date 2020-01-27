@@ -13,7 +13,6 @@ import javax.script.ScriptContext
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 
-@Suppress("Unused")
 class CamundaBPM() : JavaPlugin() {
     companion object {
         var engine: ScriptEngine? = ScriptEngineManager().getEngineByName("nashorn")
@@ -49,8 +48,10 @@ class CamundaBPM() : JavaPlugin() {
      */
     @Suppress("Unused")
     fun setExecutionEngine(executionEngine: ScriptEngine) {
+        logger.info("Setting custom BPMN Execution Engine")
         engine = executionEngine
         initialiseExecutionEngine(engine!!)
+        loadBpmnAndHandlers()
     }
 
     private fun initialiseExecutionEngine(executionEngine: ScriptEngine) {
